@@ -10,14 +10,12 @@ pipeline {
     TF_IN_AUTOMATION = 'true'
   }
 
-  stages {
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+  }
 
-    stage('Checkout') {
-      steps {
-        git branch: 'main',
-            url: 'https://github.com/your-org/eks-terraform.git'
-      }
-    }
+  stages {
 
     stage('Terraform Init') {
       steps {
@@ -41,7 +39,7 @@ pipeline {
     stage('Approval') {
       when { expression { params.ACTION == 'apply' } }
       steps {
-        input "Approve Terraform Apply?"
+        input message: "Approve Terraform Apply?"
       }
     }
 
@@ -55,9 +53,18 @@ pipeline {
     stage('Terraform Destroy') {
       when { expression { params.ACTION == 'destroy' } }
       steps {
-        input "Approve Destroy?"
+        input message: "Approve Terraform Destroy?"
         sh 'terraform destroy -auto-approve'
       }
+    }
+  }
+
+  post {
+    success {
+      echo "Pipeline completed successfully"
+    }
+    failure {
+      echo "Pipeline failed"
     }
   }
 }
