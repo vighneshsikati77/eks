@@ -1,0 +1,63 @@
+pipeline {
+  agent any
+
+  parameters {
+    choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Terraform Action')
+  }
+
+  environment {
+    AWS_DEFAULT_REGION = 'ap-south-1'
+    TF_IN_AUTOMATION = 'true'
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        git branch: 'main',
+            url: 'https://github.com/your-org/eks-terraform.git'
+      }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        sh 'terraform init'
+      }
+    }
+
+    stage('Terraform Validate') {
+      steps {
+        sh 'terraform validate'
+      }
+    }
+
+    stage('Terraform Plan') {
+      when { expression { params.ACTION == 'apply' } }
+      steps {
+        sh 'terraform plan -out=tfplan'
+      }
+    }
+
+    stage('Approval') {
+      when { expression { params.ACTION == 'apply' } }
+      steps {
+        input "Approve Terraform Apply?"
+      }
+    }
+
+    stage('Terraform Apply') {
+      when { expression { params.ACTION == 'apply' } }
+      steps {
+        sh 'terraform apply -auto-approve tfplan'
+      }
+    }
+
+    stage('Terraform Destroy') {
+      when { expression { params.ACTION == 'destroy' } }
+      steps {
+        input "Approve Destroy?"
+        sh 'terraform destroy -auto-approve'
+      }
+    }
+  }
+}
