@@ -21,8 +21,7 @@ pipeline {
       steps {
         dir('eks-1') {
            sh '''
-            rm -rf .terraform
-            terraform init -reconfigure
+            terraform init 
             '''
         }
       }
