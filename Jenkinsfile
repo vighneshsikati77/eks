@@ -8,8 +8,8 @@ pipeline {
 environment {
   AWS_DEFAULT_REGION = 'ap-south-1'
   TF_IN_AUTOMATION   = 'true'
-  AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-  AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+  AWS_ACCESS_KEY_ID     = credentials('aws-cred')
+  AWS_SECRET_ACCESS_KEY = credentials('aws-cred')
 }
 
 
